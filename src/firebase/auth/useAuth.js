@@ -1,44 +1,36 @@
 import { useEffect, useState } from "react"
 import { onAuthStateChanged } from "firebase/auth"
+import { doc, setDoc, serverTimestamp } from "firebase/firestore"
 import { auth } from "../config"
-import {
-  setUserOnline,
-  setUserOffline
-} from "../presence/presenceService"
+import { db } from "../config"
 
-export const useAuth = () => {
+export function useAuth() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        await setUserOnline(currentUser.uid)
-        setUser(currentUser)
-      } else {
-        setUser(null)
-      }
+    const unsub = onAuthStateChanged(auth, async currentUser => {
+      setUser(currentUser)
       setLoading(false)
+
+      if (currentUser) {
+        await setDoc(
+          doc(db, "users", currentUser.uid),
+          {
+            uid: currentUser.uid,
+            displayName: currentUser.displayName,
+            email: currentUser.email,
+            photoURL: currentUser.photoURL,
+            online: true,
+            lastSeen: serverTimestamp()
+          },
+          { merge: true }
+        )
+      }
     })
 
-    return () => unsub()
+    return unsub
   }, [])
-
-  // Handle tab close / refresh
-  useEffect(() => {
-    if (!user) return
-
-    const handleUnload = async () => {
-      await setUserOffline(user.uid)
-    }
-
-    window.addEventListener("beforeunload", handleUnload)
-
-    return () => {
-      handleUnload()
-      window.removeEventListener("beforeunload", handleUnload)
-    }
-  }, [user])
 
   return { user, loading }
 }
