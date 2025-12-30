@@ -1,6 +1,7 @@
 import { useState } from "react"
 import Sidebar from "./components/sidebar"
 import ChatWindow from "./components/chatwindow"
+import ProfilePage from "./components/profile"
 
 const STATIC_USERS = [
   { uid: "1", displayName: "John Doe", online: true },
@@ -12,6 +13,9 @@ const STATIC_USERS = [
 export default function ChatPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
+
+  const [showProfile, setShowProfile] = useState(false)
+
 
   return (
     <div className="h-screen flex flex-col bg-gray-100">

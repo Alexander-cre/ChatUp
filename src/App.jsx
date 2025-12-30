@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "./firebase/auth/useAuth"
-import { logoutUser, loginWithGoogle } from "./firebase/auth/authService"
+import { logoutUser } from "./firebase/auth/authService"
 import { listenToUsers } from "./firebase/users/userService"
 
 import {
   getChatId,
   createChatIfNotExists,
-  sendMessage,
   listenToMessages
 } from "./firebase/chat/chatService"
 
 import ChatPage from "./ChatPage"
+import SignInPage from "./components/signinpage" // ✅ import the new SignInPage
 
 export default function App() {
   const { user, loading } = useAuth()
@@ -38,7 +38,7 @@ export default function App() {
   }, [user, selectedUser])
 
   /* ---------------- SEND MESSAGE ---------------- */
-  const handleSendMessage = async text => {
+  const handleSendMessage = async (text) => {
     if (!text.trim() || !selectedUser) return
     const chatId = getChatId(user.uid, selectedUser.uid)
     await sendMessage(chatId, user.uid, text)
@@ -49,17 +49,9 @@ export default function App() {
     return <div className="h-screen flex items-center justify-center">Loading…</div>
   }
 
+  // Render the modern SignInPage instead of inline button
   if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <button
-          onClick={loginWithGoogle}
-          className="px-6 py-3 bg-blue-600 text-white rounded"
-        >
-          Sign in with Google
-        </button>
-      </div>
-    )
+    return <SignInPage />
   }
 
   /* ---------------- MAIN UI ---------------- */
