@@ -3,13 +3,14 @@ import { getAuth } from "firebase/auth"
 import { getFirestore } from "firebase/firestore"
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCrwwm0RRqfmow2EYhuhzociO8gitdE8FU",
-  authDomain: "chatup-fd956.firebaseapp.com", // REQUIRED
-  projectId: "chatup-fd956",
-  storageBucket: "chatup-fd956.firebasestorage.app",
-  messagingSenderId: "757350828510",
-  appId: "1:757350828510:web:4c6a16b9370b23bac9b54f",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain:  import.meta.env.VITE_FIREBASE_AUTH_DOMAIN, // REQUIRED
+  projectId:  import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket:  import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId:  import.meta.env.VITE_FIREBASE_APP_ID,
 }
+
 
 const app = initializeApp(firebaseConfig)
 
