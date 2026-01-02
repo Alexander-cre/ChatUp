@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react"
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
+
 import { useAuth } from "./firebase/auth/useAuth"
 import { logoutUser } from "./firebase/auth/authService"
 import { listenToUsers } from "./firebase/users/userService"
-
 import {
   getChatId,
   createChatIfNotExists,
-  listenToMessages
+  listenToMessages,
+  sendMessage
 } from "./firebase/chat/chatService"
 
 import ChatPage from "./ChatPage"
-import SignInPage from "./components/signinpage" // ✅ import the new SignInPage
+import SignInPage from "./components/signinpage"
+import ProfilePage from "./components/profile"
+import Preloader from "./components/preloader"
 
 export default function App() {
   const { user, loading } = useAuth()
@@ -37,33 +41,49 @@ export default function App() {
     return () => unsub()
   }, [user, selectedUser])
 
-  /* ---------------- SEND MESSAGE ---------------- */
   const handleSendMessage = async (text) => {
     if (!text.trim() || !selectedUser) return
     const chatId = getChatId(user.uid, selectedUser.uid)
     await sendMessage(chatId, user.uid, text)
   }
 
-  /* ---------------- AUTH UI ---------------- */
   if (loading) {
-    return <div className="h-screen flex items-center justify-center">Loading…</div>
+    return <Preloader />
   }
 
-  // Render the modern SignInPage instead of inline button
   if (!user) {
     return <SignInPage />
   }
 
-  /* ---------------- MAIN UI ---------------- */
   return (
-    <ChatPage
-      user={user}
-      users={users}
-      selectedUser={selectedUser}
-      setSelectedUser={setSelectedUser}
-      messages={messages}
-      onSendMessage={handleSendMessage}
-      onLogout={logoutUser}
-    />
+    <Router>
+      <Routes>
+
+        {/* Chat page */}
+        <Route
+          path="/"
+          element={
+            <ChatPage
+              user={user}
+              users={users}
+              selectedUser={selectedUser}
+              setSelectedUser={setSelectedUser}
+              messages={messages}
+              onSendMessage={handleSendMessage}
+              onLogout={logoutUser}
+            />
+          }
+        />
+
+        {/* Profile page */}
+        <Route
+          path="/profile"
+          element={<ProfilePage user={user} onLogout={logoutUser} />}
+        />
+
+        {/* Redirect unknown routes to chat */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   )
 }
